@@ -3,6 +3,7 @@ package com.aashish.carrental.service;
 import com.aashish.carrental.domain.Car;
 import com.aashish.carrental.domain.CarType;
 import com.aashish.carrental.domain.Reservation;
+import com.aashish.carrental.service.exception.CarNotAvailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

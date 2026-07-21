@@ -4,6 +4,7 @@ import com.aashish.carrental.domain.Car;
 import com.aashish.carrental.domain.CarType;
 import com.aashish.carrental.domain.RentalPeriod;
 import com.aashish.carrental.domain.Reservation;
+import com.aashish.carrental.service.exception.CarNotAvailableException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
