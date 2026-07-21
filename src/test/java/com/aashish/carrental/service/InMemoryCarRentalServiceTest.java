@@ -74,6 +74,41 @@ class InMemoryCarRentalServiceTest {
     }
 
     @Test
+    void allowsSamePeriodForDifferentCarTypes() {
+        Reservation suv =
+                service.reserve(CarType.SUV, START, 2);
+
+        Reservation sedan =
+                service.reserve(CarType.SEDAN, START, 2);
+
+        Reservation van =
+                service.reserve(CarType.VAN, START, 2);
+
+        assertEquals(CarType.SUV, suv.car().type());
+        assertEquals(CarType.SEDAN, sedan.car().type());
+        assertEquals(CarType.VAN, van.car().type());
+    }
+
+
+    @Test
+    void rejectsSecondOverlappingReservationWhenOnlyOneCarExists() {
+        InMemoryCarRentalService oneSuvService = new InMemoryCarRentalService(List.of(
+                new Car("SUV-1", CarType.SUV)
+        ));
+
+        oneSuvService.reserve(CarType.SUV, START, 3);
+
+        assertThrows(
+                CarNotAvailableException.class,
+                () -> oneSuvService.reserve(
+                        CarType.SUV,
+                        START.plusDays(1),
+                        1
+                )
+        );
+    }
+
+    @Test
     void rejectsInvalidRequests() {
         assertThrows(NullPointerException.class, () -> service.reserve(null, START, 1));
         assertThrows(NullPointerException.class, () -> service.reserve(CarType.SUV, null, 1));
