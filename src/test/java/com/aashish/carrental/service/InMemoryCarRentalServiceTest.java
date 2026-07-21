@@ -10,9 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryCarRentalServiceTest {
 
@@ -62,6 +60,22 @@ class InMemoryCarRentalServiceTest {
         Reservation second = service.reserve(CarType.VAN, START.plusDays(2), 1);
 
         assertEquals(first.car(), second.car());
+    }
+
+    @Test
+    void shouldAllowBackToBackReservationsForSameCar() {
+        InMemoryCarRentalService oneCarService = new InMemoryCarRentalService(
+                List.of(new Car("SUV-1", CarType.SUV)));
+
+        Reservation firstReservation =
+                oneCarService.reserve(CarType.SUV, START, 3);
+
+        Reservation secondReservation = oneCarService.reserve(CarType.SUV, START.plusDays(3), 2);
+
+        assertAll(
+                () -> assertEquals(firstReservation.period().end(), secondReservation.period().start()),
+                () -> assertEquals(firstReservation.car().id(), secondReservation.car().id())
+        );
     }
 
     @Test
