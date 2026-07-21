@@ -2,6 +2,7 @@ package com.aashish.carrental.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -325,6 +326,72 @@ class RentalPeriodTest {
         assertEquals(
                 LocalDateTime.of(2028, 3, 1, 10, 0),
                 period.end()
+        );
+    }
+
+    @Test
+    void shouldRejectZeroRentalDays() {
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> RentalPeriod.forDays(START, 0)
+                );
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void shouldRejectNegativeRentalDays() {
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> RentalPeriod.forDays(START, -1)
+                );
+
+        assertNotNull(exception);
+    }
+
+    @Test
+    void shouldRejectVeryLargeNegativeRentalDays() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> RentalPeriod.forDays(
+                        START,
+                        Integer.MIN_VALUE
+                )
+        );
+    }
+
+    @Test
+    void shouldRejectNullStartDateTime() {
+        assertThrows(
+                NullPointerException.class,
+                () -> RentalPeriod.forDays(null, 2)
+        );
+    }
+
+    @Test
+    void shouldRejectNullPeriodWhenCheckingOverlap() {
+        RentalPeriod period =
+                RentalPeriod.forDays(START, 2);
+
+        assertThrows(
+                NullPointerException.class,
+                () -> period.overlaps(null)
+        );
+    }
+
+    @Test
+    void shouldRejectPeriodWhenCalculatedEndExceedsSupportedDateRange() {
+        LocalDateTime nearMaximumDate =
+                LocalDateTime.MAX.minusDays(1);
+
+        assertThrows(
+                DateTimeException.class,
+                () -> RentalPeriod.forDays(
+                        nearMaximumDate,
+                        2
+                )
         );
     }
 }
