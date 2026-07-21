@@ -35,15 +35,3 @@ The implementation chooses the first available car of the requested type. This i
 - There is no customer, cancellation, payment, pricing, time-zone, or vehicle-maintenance model because those behaviours are outside the brief.
 - `LocalDateTime` follows the requirement's local date/time wording. Production software spanning time zones should normally accept a zone and persist an `Instant`.
 
-## Suggested commit history
-
-If you want the repository history to show a natural implementation sequence, create and commit each step separately rather than committing the finished tree at once:
-
-1. `chore: initialize Java 21 Maven project`
-2. `feat: model cars and rental periods`
-3. `test: define rental period overlap behaviour`
-4. `feat: implement in-memory reservation service`
-5. `test: cover inventory and reservation scenarios`
-6. `docs: explain design decisions and trade-offs`
-
-See [PROJECT_GUIDE.md](PROJECT_GUIDE.md) for the complete creation walkthrough and interview notes.
