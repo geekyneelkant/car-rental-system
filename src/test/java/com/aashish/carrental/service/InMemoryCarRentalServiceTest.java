@@ -92,6 +92,26 @@ class InMemoryCarRentalServiceTest {
         assertThrows(CarNotAvailableException.class, () -> oneCarService.reserve(
                 CarType.SUV, START.plusDays(2), 2));
     }
+
+    @Test
+    void shouldRejectReservationThatFullyContainsExistingReservation() {
+        InMemoryCarRentalService oneCarService = new InMemoryCarRentalService(
+                List.of(new Car("SUV-1", CarType.SUV)));
+
+        /*
+         * Existing reservation:
+         *       START + 1 day ---- START + 3 days
+         */
+        oneCarService.reserve(CarType.SUV, START.plusDays(1), 2);
+
+        /*
+         * New reservation:
+         * START --------------------------- START + 5 days
+         */
+        assertThrows(CarNotAvailableException.class, () -> oneCarService.reserve(
+                CarType.SUV, START, 5));
+    }
+
     @Test
     void inventoryIsIndependentForEachCarType() {
         service.reserve(CarType.SUV, START, 2);
