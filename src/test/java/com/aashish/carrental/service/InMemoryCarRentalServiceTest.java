@@ -79,6 +79,20 @@ class InMemoryCarRentalServiceTest {
     }
 
     @Test
+    void shouldRejectReservationThatPartiallyOverlapsExistingReservation() {
+        InMemoryCarRentalService oneCarService = new InMemoryCarRentalService(
+                List.of(new Car("SUV-1", CarType.SUV)));
+
+        oneCarService.reserve(CarType.SUV, START, 3);
+
+        /*
+         * Existing reservation: START -------- START + 3 days
+         * New reservation: START + 2 days -------- START + 4 days
+         */
+        assertThrows(CarNotAvailableException.class, () -> oneCarService.reserve(
+                CarType.SUV, START.plusDays(2), 2));
+    }
+    @Test
     void inventoryIsIndependentForEachCarType() {
         service.reserve(CarType.SUV, START, 2);
 
