@@ -20,12 +20,11 @@ class InMemoryCarRentalServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new InMemoryCarRentalService(List.of(
-                new Car("SEDAN-1", CarType.SEDAN),
-                new Car("SEDAN-2", CarType.SEDAN),
-                new Car("SUV-1", CarType.SUV),
-                new Car("VAN-1", CarType.VAN)
-        ));
+        service = new InMemoryCarRentalService(
+                List.of(new Car("SEDAN-1", CarType.SEDAN),
+                        new Car("SEDAN-2", CarType.SEDAN),
+                        new Car("SUV-1", CarType.SUV),
+                        new Car("VAN-1", CarType.VAN)));
     }
 
     @Test
@@ -67,15 +66,14 @@ class InMemoryCarRentalServiceTest {
         InMemoryCarRentalService oneCarService = new InMemoryCarRentalService(
                 List.of(new Car("SUV-1", CarType.SUV)));
 
-        Reservation firstReservation =
-                oneCarService.reserve(CarType.SUV, START, 3);
+        Reservation firstReservation = oneCarService.reserve(CarType.SUV, START, 3);
 
         Reservation secondReservation = oneCarService.reserve(CarType.SUV, START.plusDays(3), 2);
 
-        assertAll(
-                () -> assertEquals(firstReservation.period().end(), secondReservation.period().start()),
-                () -> assertEquals(firstReservation.car().id(), secondReservation.car().id())
-        );
+        assertAll(() -> assertEquals(
+                firstReservation.period().end(),
+                secondReservation.period().start()),
+                () -> assertEquals(firstReservation.car().id(), secondReservation.car().id()));
     }
 
     @Test
@@ -89,8 +87,8 @@ class InMemoryCarRentalServiceTest {
          * Existing reservation: START -------- START + 3 days
          * New reservation: START + 2 days -------- START + 4 days
          */
-        assertThrows(CarNotAvailableException.class, () -> oneCarService.reserve(
-                CarType.SUV, START.plusDays(2), 2));
+        assertThrows(CarNotAvailableException.class,
+                () -> oneCarService.reserve(CarType.SUV, START.plusDays(2), 2));
     }
 
     @Test
@@ -108,35 +106,32 @@ class InMemoryCarRentalServiceTest {
          * New reservation:
          * START --------------------------- START + 5 days
          */
-        assertThrows(CarNotAvailableException.class, () -> oneCarService.reserve(
-                CarType.SUV, START, 5));
+        assertThrows(CarNotAvailableException.class,
+                () -> oneCarService.reserve(CarType.SUV, START, 5));
     }
 
     @Test
     void shouldRejectZeroRentalDays() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> service.reserve(
-                        CarType.SUV,
-                        START,
-                        0
-                )
-        );
+        assertThrows(IllegalArgumentException.class,
+                () -> service.reserve(CarType.SUV, START, 0));
     }
 
     @Test
     void shouldRejectNegativeRentalDays() {
-        assertThrows(IllegalArgumentException.class, () -> service.reserve(CarType.SUV, START, -1));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.reserve(CarType.SUV, START, -1));
     }
 
     @Test
     void shouldRejectNullCarType() {
-        assertThrows(NullPointerException.class, () -> service.reserve(null, START, 2));
+        assertThrows(NullPointerException.class,
+                () -> service.reserve(null, START, 2));
     }
 
     @Test
     void shouldRejectNullStartDateTime() {
-        assertThrows(NullPointerException.class, () -> service.reserve(CarType.SUV, null, 2));
+        assertThrows(NullPointerException.class,
+                () -> service.reserve(CarType.SUV, null, 2));
     }
 
     @Test
@@ -150,43 +145,44 @@ class InMemoryCarRentalServiceTest {
 
     @Test
     void allowsSamePeriodForDifferentCarTypes() {
-        Reservation suv =
-                service.reserve(CarType.SUV, START, 2);
+        Reservation suv = service.reserve(CarType.SUV, START, 2);
 
-        Reservation sedan =
-                service.reserve(CarType.SEDAN, START, 2);
+        Reservation sedan = service.reserve(CarType.SEDAN, START, 2);
 
-        Reservation van =
-                service.reserve(CarType.VAN, START, 2);
+        Reservation van = service.reserve(CarType.VAN, START, 2);
 
         assertEquals(CarType.SUV, suv.car().type());
         assertEquals(CarType.SEDAN, sedan.car().type());
         assertEquals(CarType.VAN, van.car().type());
     }
 
-
     @Test
     void rejectsSecondOverlappingReservationWhenOnlyOneCarExists() {
-        InMemoryCarRentalService oneSuvService = new InMemoryCarRentalService(List.of(
-                new Car("SUV-1", CarType.SUV)
-        ));
+        InMemoryCarRentalService oneSuvService = new InMemoryCarRentalService(
+                List.of(new Car("SUV-1", CarType.SUV)));
 
         oneSuvService.reserve(CarType.SUV, START, 3);
 
-        assertThrows(
-                CarNotAvailableException.class,
-                () -> oneSuvService.reserve(
-                        CarType.SUV,
-                        START.plusDays(1),
-                        1
-                )
-        );
+        assertThrows(CarNotAvailableException.class,
+                () -> oneSuvService.reserve(CarType.SUV, START.plusDays(1), 1));
     }
 
     @Test
-    void rejectsInvalidRequests() {
-        assertThrows(NullPointerException.class, () -> service.reserve(null, START, 1));
-        assertThrows(NullPointerException.class, () -> service.reserve(CarType.SUV, null, 1));
-        assertThrows(IllegalArgumentException.class, () -> service.reserve(CarType.SUV, START, 0));
+    void shouldHandleReservationsCreatedOutOfChronologicalOrder() {
+        InMemoryCarRentalService oneCarService = new InMemoryCarRentalService(
+                List.of(new Car("SUV-1", CarType.SUV)));
+
+        Reservation laterReservation = oneCarService.reserve(CarType.SUV, START.plusDays(10), 2);
+
+        Reservation earlierReservation = oneCarService.reserve(CarType.SUV, START, 2);
+
+        Reservation middleReservation = oneCarService.reserve(CarType.SUV, START.plusDays(5), 2);
+
+        assertAll(() -> assertEquals(earlierReservation.car().id(),
+                middleReservation.car().id()),
+                () -> assertEquals(middleReservation.car().id(), laterReservation.car().id()),
+                () -> assertEquals(START, earlierReservation.period().start()),
+                () -> assertEquals(START.plusDays(5), middleReservation.period().start()),
+                () -> assertEquals(START.plusDays(10), laterReservation.period().start()));
     }
 }
