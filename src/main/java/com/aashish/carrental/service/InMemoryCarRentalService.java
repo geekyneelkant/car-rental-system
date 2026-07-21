@@ -18,12 +18,12 @@ public final class InMemoryCarRentalService implements CarRentalService {
     private final List<Reservation> reservations = new ArrayList<>();
 
     public InMemoryCarRentalService(List<Car> cars) {
-        Objects.requireNonNull(cars, "Fleet must not be null");
+        Objects.requireNonNull(cars, "Cars must not be null");
         if (cars.isEmpty()) {
-            throw new IllegalArgumentException("Fleet must not be empty");
+            throw new IllegalArgumentException("Cars must not be empty");
         }
         if (cars.stream().anyMatch(Objects::isNull)) {
-            throw new IllegalArgumentException("Fleet must not contain null cars");
+            throw new IllegalArgumentException("Cars must not contain null cars");
         }
         if (cars.stream().map(Car::id).distinct().count() != cars.size()) {
             throw new IllegalArgumentException("Car ids must be unique");
