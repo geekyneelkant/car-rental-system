@@ -1,4 +1,4 @@
-package com.aashish.carrental.service;
+package com.aashish.carrental.service.exception;
 
 import com.aashish.carrental.domain.CarType;
 import com.aashish.carrental.domain.RentalPeriod;
