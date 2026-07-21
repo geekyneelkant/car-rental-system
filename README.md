@@ -35,3 +35,21 @@ The implementation chooses the first available car of the requested type. This i
 - There is no customer, cancellation, payment, pricing, time-zone, or vehicle-maintenance model because those behaviours are outside the brief.
 - `LocalDateTime` follows the requirement's local date/time wording. Production software spanning time zones should normally accept a zone and persist an `Instant`.
 
+## Production Considerations
+
+This solution focuses on the core reservation logic and uses in-memory storage. For a production-ready system, the following areas should be addressed:
+
+- **Persistent storage:** Store cars and reservations in a relational database.
+- **Concurrency control:** Make the availability check and reservation creation atomic to prevent double booking.
+- **Idempotency:** Use idempotency keys to prevent duplicate reservations when clients retry requests.
+- **Reservation lifecycle:** Support statuses such as `PENDING`, `CONFIRMED`, `CANCELLED`, `COMPLETED`, and `EXPIRED`.
+- **Validation:** Validate rental dates, duration, car type, vehicle status, and requests for past dates.
+- **Time-zone handling:** Use `Instant` or `ZonedDateTime` when supporting multiple rental locations.
+- **Vehicle availability:** Consider maintenance, damage, current rental status, and location when checking availability.
+- **Security:** Add authentication, authorization, HTTPS, rate limiting, and secure handling of customer data.
+- **Observability:** Add structured logging, correlation IDs, metrics, distributed tracing, health checks, and audit history.
+- **API and error handling:** Expose versioned REST APIs with consistent, domain-specific error responses.
+- **Scalability:** Use appropriate database indexes, pagination, horizontal scaling, and carefully controlled caching.
+- **Testing:** Add integration, concurrency, API contract, performance, security, and end-to-end tests.
+
+> The current implementation intentionally prioritizes domain modelling, rental-period overlap detection, inventory allocation, and unit-test coverage over infrastructure and production integration concerns.
