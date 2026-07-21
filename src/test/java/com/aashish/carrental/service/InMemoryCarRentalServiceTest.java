@@ -113,6 +113,33 @@ class InMemoryCarRentalServiceTest {
     }
 
     @Test
+    void shouldRejectZeroRentalDays() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.reserve(
+                        CarType.SUV,
+                        START,
+                        0
+                )
+        );
+    }
+
+    @Test
+    void shouldRejectNegativeRentalDays() {
+        assertThrows(IllegalArgumentException.class, () -> service.reserve(CarType.SUV, START, -1));
+    }
+
+    @Test
+    void shouldRejectNullCarType() {
+        assertThrows(NullPointerException.class, () -> service.reserve(null, START, 2));
+    }
+
+    @Test
+    void shouldRejectNullStartDateTime() {
+        assertThrows(NullPointerException.class, () -> service.reserve(CarType.SUV, null, 2));
+    }
+
+    @Test
     void inventoryIsIndependentForEachCarType() {
         service.reserve(CarType.SUV, START, 2);
 
